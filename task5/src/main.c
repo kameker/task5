@@ -1,30 +1,32 @@
 #include "../include/deque.h"
 #include <stdio.h>
+// #include <omp.h>
 
-int main(){
+int main()
+{
     deque dq;
-    int size = 5; 
+    int size = 100000000;
     make_deque(&dq, size);
-    
-    printf("Adding elements...\n");
-    for (int i = 0; i < size; i++){
-        add_last(&dq, i*i - 1);
-    }
-    
-    printf("Printing elements...\n");
-    for (int i = 0; i < size; i++){
-        node* n = peek_n(&dq, i);
-        if (n != NULL) {
-            printf("%d - %d\n", i, n->value);
-        } else {
-            printf("%d - NULL\n", i);
+
+    double start = omp_get_wtime();
+
+#pragma omp parallel for
+
+    for (int i = 0; i < size; i++)
+    {
+#pragma omp critical
+        {
+            add_last(&dq, i * i - 1);
         }
     }
-    
-    // Очистка памяти
-    while (!is_empty(&dq)) {
+
+    double end = omp_get_wtime();
+    printf("Время выполнения: %f секунд\n", end - start);
+
+    while (!is_empty(&dq))
+    {
         rem_first(&dq);
     }
-    
+
     return 0;
 }
